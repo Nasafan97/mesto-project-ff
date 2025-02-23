@@ -1,11 +1,11 @@
 import "./pages/index.css";
 import {
-  initialCards,
   createCard,
   likeImage,
-  createPopupCard,
-} from "./cards.js";
+  deleteCard,
+} from "./card.js";
 import { openPopup, closePopup } from "./modal.js";
+import {initialCards} from "./cards.js";
 
 // @todo: DOM узлы
 const cardContent = document.querySelector(".places__list");
@@ -22,8 +22,21 @@ const formNewCard = document.forms["new-place"];
 
 // @todo: Вывести карточки на страницу
 initialCards.forEach((elem) => {
-  cardContent.append(createCard(elem, likeImage, createPopupCard));
+  cardContent.append(createCard(elem, likeImage, openPopupCard, deleteCard));
 });
+
+// @todo: Функция создания попапа карточки, которая также вызывает открытие попапа-картинки
+function openPopupCard(image, title) {
+  const popupImageCard = document.querySelector(".popup_type_image");
+  const popupImage = popupImageCard.querySelector(".popup__image");
+  const popupCaption = popupImageCard.querySelector(".popup__caption");
+
+  popupImage.src = image.src;
+  popupImage.alt = image.alt;
+  popupCaption.textContent = title.textContent;
+
+  openPopup(popupImageCard);
+}
 
 // @todo: Добавить слушатели на Попапы с формами заполнения
 buttonEdit.addEventListener("click", () => openPopup(popupEdit));
@@ -36,14 +49,13 @@ function handleFormSubmitEdit(evt) {
   profileDescription.textContent = jobInput.value;
   closePopup(popupEdit);
 }
-
 formEditPopup.addEventListener("submit", handleFormSubmitEdit);
 
-export function saveInputPopupEdit() {
+function saveInputPopupEdit() {
   nameInput.value = profileTitle.textContent;
   jobInput.value = profileDescription.textContent;
 }
-saveInputPopupEdit();
+buttonEdit.addEventListener("click", () => saveInputPopupEdit()); //Огромное спасибо за все правки и рекомендации!!!!
 
 // @todo: Добавление новой карточки при срабатывании события submit
 function handleFormSubmitNewCard(evt) {
@@ -54,9 +66,9 @@ function handleFormSubmitNewCard(evt) {
     name,
     link,
   };
-  cardContent.prepend(createCard(newCard, likeImage, createPopupCard));
+  cardContent.prepend(createCard(newCard, likeImage, openPopupCard, deleteCard));
   closePopup(popupNewCard);
   formNewCard.reset();
 }
-
 formNewCard.addEventListener("submit", handleFormSubmitNewCard);
+

@@ -6,16 +6,13 @@ function openPopup(popup) {
   popup.classList.add("popup_is-opened");
   
   document.addEventListener("keydown", closePopupOnEscape);
-  const buttonClose = popup.querySelector(".popup__close");
-  buttonClose.addEventListener("click", () => closePopup(popup));
-  popup.addEventListener("click", closesPopupOnOverlay);
+  popup.addEventListener("click", closesPopupOnOverlayOrButton);
 }
 
 // @todo: Функция закрытия попапа
 function closePopup(popup) {
   popup.classList.remove("popup_is-opened");
   document.removeEventListener("keydown", closePopupOnEscape);
-  saveInputPopupEdit();
 }
 
 // @todo: Функция закрытия попапа по Esc
@@ -26,10 +23,11 @@ function closePopupOnEscape(evt) {
   }
 }
 
-// @todo: Функция закрытия попапа по Overlay
-function closesPopupOnOverlay(evt) {
-  if (evt.target === evt.currentTarget) {
+// @todo: Функция закрытия попапа по Overlay или по крестику
+function closesPopupOnOverlayOrButton(evt) {
+  if (evt.target === evt.currentTarget || evt.target.classList.contains('popup__close')) {
     closePopup(evt.currentTarget);
   }
 }
+
 export { openPopup, closePopup };
