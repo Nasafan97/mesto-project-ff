@@ -1,2 +1,2 @@
 # Проектная работа Mesto
-https://github.com/Nasafan97/mesto-project-ff.git
+https://Nasafan97.github.io/mesto-project-ff
