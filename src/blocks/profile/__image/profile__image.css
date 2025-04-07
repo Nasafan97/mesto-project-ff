@@ -7,6 +7,33 @@
   background-size: cover;
   background-position: center;
   margin: 0 29px 0 0;
+  position: relative;
+}
+
+.overlay {
+  position: absolute;
+  top: 0; right: 0; bottom: 0; left: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: none;
+}
+
+.profile__image:hover .overlay {
+  display: block;
+  cursor: pointer;
+}
+
+.profile__image:hover::after {
+  content: '';
+  display: block;
+  background: url("../../../images/edit-icon.svg") center no-repeat;
+  background-size: 26px 26px;
+  width: 26px;
+  height: 26px;
+  position: absolute;
+  top: 47px;
+  left: 51px;
+  z-index: 10;
+  cursor: pointer;
 }
 
 @media screen and (max-width: 740px) {

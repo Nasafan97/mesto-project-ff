@@ -10,3 +10,7 @@
     line-height: 22px;
   }
 }
+
+.popup__title_type_delete-card {
+  line-height: 25px;
+}

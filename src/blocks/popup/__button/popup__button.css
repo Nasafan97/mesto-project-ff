@@ -11,7 +11,8 @@
   border-radius: 2px;
   border: none;
   transition: visibility 0s, background 0.3s;
-  margin-top: 48px;
+  margin-top: 45px;
+  box-sizing: border-box;
 }
 
 .popup__button:hover {
@@ -19,9 +20,24 @@
   cursor: pointer;
 }
 
+.popup__button_type_delete-card {
+  margin-top: 38px;
+}
+
 @media screen and (max-width: 568px) {
   .popup__button {
     font-size: 14px;
     line-height: 17px;
   }
+}
+
+.popup__button_disabled {
+  background: transparent;
+  color: rgba(0, 0, 0, .2);
+  border: 1px solid rgba(0, 0, 0, .2);
+}
+
+.popup__button_disabled:hover {
+  cursor: auto;
+  background: none;
 }

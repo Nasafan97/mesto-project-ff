@@ -1,5 +1,3 @@
-import { saveInputPopupEdit } from "./index.js";
-
 // @todo: Функция открытия попапа
 function openPopup(popup) {
   popup.classList.add("popup_is-animated");
