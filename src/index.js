@@ -1,5 +1,5 @@
 import "./pages/index.css";
-import { createCard, likeImage, deleteCard } from "./card.js";
+import { createCard, likeCallback } from "./card.js";
 import { openPopup, closePopup } from "./modal.js";
 import { clearValidation, enableValidation } from "./validation.js";
 import {
@@ -8,6 +8,7 @@ import {
   getCardsData,
   getProfile,
   changeAvatar,
+  confirmDeleteCard,
 } from "./api.js";
 
 // @todo: DOM узлы
@@ -15,6 +16,9 @@ const cardContent = document.querySelector(".places__list");
 const buttonEdit = document.querySelector(".profile__edit-button");
 const buttonNewCard = document.querySelector(".profile__add-button");
 const buttonAvatarEdit = document.querySelector(".profile__image");
+const buttonConfirmDelete = document.querySelector(
+  ".popup__button_type_delete-card"
+);
 const popupEdit = document.querySelector(".popup_type_edit");
 const popupNewCard = document.querySelector(".popup_type_new-card");
 const formEditPopup = document.forms["edit-profile"];
@@ -39,14 +43,23 @@ const validationConfig = {
 Promise.all([getProfile(), getCardsData()])
   .then(([userData, cardData]) => {
     cardData.forEach((elem) => {
+      // Отрисовываем на странице карточки с сервера
       cardContent.append(
-        createCard(elem, likeImage, openPopupCard, deleteCard, userData._id)
+        createCard(
+          elem,
+          likeCallback,
+          openPopupCard,
+          deleteCallback,
+          userData._id
+        )
       );
     });
+    // Отрисовываем на странице данные профиля с сервера
+    profileTitle.textContent = userData.name;
+    profileDescription.textContent = userData.about;
+    buttonAvatarEdit.style.backgroundImage = `url(${userData.avatar})`;
   })
-  .catch((error) =>
-    console.error("Ошибка получения карточек с сервера:", error)
-  );
+  .catch((error) => console.error("Ошибка получения данных с сервера:", error));
 
 // @todo: Функция создания попапа карточки, которая также вызывает открытие попапа-картинки
 function openPopupCard(image, title) {
@@ -59,6 +72,28 @@ function openPopupCard(image, title) {
   popupCaption.textContent = title.textContent;
 
   openPopup(popupImageCard);
+}
+
+// @todo: Функция удаления карточки, в том числе с сервера
+function deleteCallback(card, cardId) {
+  openPopup(popupDeleteCard);
+  buttonConfirmDelete.onclick = function () {
+    confirmDeleteCard(cardId)
+      .then(() => {
+        card.remove();
+      })
+      .catch((error) => console.error("Ошибка удаления карточки:", error))
+      .finally(() => {
+        closePopup(popupDeleteCard);
+      });
+  };
+}
+
+// @todo: Функция, которая показывает, что идёт процесс сохранения
+function renderSaving(isSaving, popup) {
+  popup.querySelector(".popup__button").textContent = isSaving
+    ? "Сохранение..."
+    : "Сохранить";
 }
 
 // @todo: Добавить слушатели на Попапы с формами заполнения
@@ -85,15 +120,6 @@ function saveInputPopupEdit() {
   jobInput.value = profileDescription.textContent;
 }
 
-// @todo: Функция, которая показывает, что идёт процесс сохранения
-function renderSaving(isSaving, popup) {
-  if (isSaving) {
-    popup.querySelector(".popup__button").textContent = "Сохранение...";
-  } else {
-    popup.querySelector(".popup__button").textContent = "Сохранить";
-  }
-}
-
 // @todo: Редактирование аватарки
 function handleFormSubmitEditAvatar(evt) {
   evt.preventDefault();
@@ -114,10 +140,11 @@ popupEditAvatar.addEventListener("submit", handleFormSubmitEditAvatar);
 function handleFormSubmitEdit(evt) {
   evt.preventDefault();
   renderSaving(true, popupEdit);
-  profileTitle.textContent = nameInput.value;
-  profileDescription.textContent = jobInput.value;
-
-  editProfile(profileTitle.textContent, profileDescription.textContent)
+  editProfile(nameInput.value, jobInput.value)
+    .then((userData) => {
+      profileTitle.textContent = userData.name;
+      profileDescription.textContent = userData.about;
+    })
     .catch((error) => console.error("Ошибка обновления профиля:", error))
     .finally(() => {
       renderSaving(false, popupEdit);
@@ -125,16 +152,6 @@ function handleFormSubmitEdit(evt) {
     });
 }
 formEditPopup.addEventListener("submit", handleFormSubmitEdit);
-
-document.addEventListener("DOMContentLoaded", () => {
-  getProfile()
-    .then((userData) => {
-      profileTitle.textContent = userData.name;
-      profileDescription.textContent = userData.about;
-      buttonAvatarEdit.style.backgroundImage = `url(${userData.avatar})`;
-    })
-    .catch((error) => console.error("Ошибка загрузки профиля:", error));
-});
 
 // @todo: Добавление новой карточки при срабатывании события submit
 function handleFormSubmitNewCard(evt) {
@@ -147,9 +164,9 @@ function handleFormSubmitNewCard(evt) {
       cardContent.prepend(
         createCard(
           newCard,
-          likeImage,
+          likeCallback,
           openPopupCard,
-          deleteCard,
+          deleteCallback,
           newCard.owner._id
         )
       );
@@ -163,5 +180,3 @@ function handleFormSubmitNewCard(evt) {
 formNewCard.addEventListener("submit", handleFormSubmitNewCard);
 
 enableValidation(validationConfig);
-
-export { popupDeleteCard, validationConfig };
